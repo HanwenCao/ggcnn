@@ -1,8 +1,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import string
+import random
 
 from .grasp import GraspRectangles, detect_grasps
 
+def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
+    return ''.join(random.choice(chars) for _ in range(size))
 
 def plot_output(rgb_img, depth_img, grasp_q_img, grasp_angle_img, no_grasps=1, grasp_width_img=None):
     """
@@ -44,6 +48,9 @@ def plot_output(rgb_img, depth_img, grasp_q_img, grasp_angle_img, no_grasps=1, g
     ax.axis('off')
     plt.colorbar(plot)
     plt.show()
+    
+    save_name = 'results_'+id_generator()+'.png'
+    fig.savefig(save_name)
 
 
 def calculate_iou_match(grasp_q, grasp_angle, ground_truth_bbs, no_grasps=1, grasp_width=None):
