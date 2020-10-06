@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import string
 import random
+import os
 
 from .grasp import GraspRectangles, detect_grasps
 
@@ -49,7 +50,8 @@ def plot_output(rgb_img, depth_img, grasp_q_img, grasp_angle_img, no_grasps=1, g
     plt.colorbar(plot)
     plt.show()
     
-    save_name = 'results_'+id_generator()+'.png'
+    os.makedirs('/content/results_vis', exist_ok=True)
+    save_name = '/content/results_vis/results_'+id_generator()+'.png'
     fig.savefig(save_name)
 
 
