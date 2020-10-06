@@ -19,6 +19,8 @@ class JacquardDataset(GraspDatasetBase):
         """
         super(JacquardDataset, self).__init__(**kwargs)
 
+        # *_grasps.txt: a text file with the grasps annotations. 
+        # Each line in the file is one grasp written as x;y;theta in degrees;opening;jaws size.
         graspf = glob.glob(os.path.join(file_path, '*', '*_grasps.txt'))
         graspf.sort()
         l = len(graspf)
@@ -29,7 +31,9 @@ class JacquardDataset(GraspDatasetBase):
         if ds_rotate:
             graspf = graspf[int(l*ds_rotate):] + graspf[:int(l*ds_rotate)]
 
+        # *_perfect_depth.tiff: a float32 tiff image with the perfect depth image.
         depthf = [f.replace('grasps.txt', 'perfect_depth.tiff') for f in graspf]
+        # *_RGB.png: a png image of the scene rendered with Blender.
         rgbf = [f.replace('perfect_depth.tiff', 'RGB.png') for f in depthf]
 
         self.grasp_files = graspf[int(l*start):int(l*end)]
