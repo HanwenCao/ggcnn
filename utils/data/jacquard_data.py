@@ -66,4 +66,6 @@ class JacquardDataset(GraspDatasetBase):
         return rgb_img.img
 
     def get_jname(self, idx):
+        # idx_nameOfObject (e.g. 4_ffe702c059d0fe5e6617a7fd9720002b)
+        # idx = {0,1,2,3,4} , each idx represents a different shotting angle of the same object
         return '_'.join(self.grasp_files[idx].split(os.sep)[-1].split('_')[:-1])
