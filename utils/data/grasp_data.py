@@ -31,6 +31,7 @@ class GraspDatasetBase(torch.utils.data.Dataset):
 
         if include_depth is False and include_rgb is False:
             raise ValueError('At least one of Depth or RGB must be specified.')
+        # print('input_only = ',input_only)
 
     @staticmethod
     def numpy_to_torch(s):
@@ -63,16 +64,21 @@ class GraspDatasetBase(torch.utils.data.Dataset):
         # Load the depth image
         if self.include_depth:
             depth_img = self.get_depth(idx, rot, zoom_factor)
+            # print(depth_img.shape)
 
         # Load the RGB image
         if self.include_rgb:
             rgb_img = self.get_rgb(idx, rot, zoom_factor)
 
         # Load the grasps
-        bbs = self.get_gtbb(idx, rot, zoom_factor)
-
-        pos_img, ang_img, width_img = bbs.draw((self.output_size, self.output_size))
-        width_img = np.clip(width_img, 0.0, 150.0)/150.0
+        if not self.input_only:
+            bbs = self.get_gtbb(idx, rot, zoom_factor)
+            pos_img, ang_img, width_img = bbs.draw((self.output_size, self.output_size))
+            width_img = np.clip(width_img, 0.0, 150.0)/150.0
+            pos = self.numpy_to_torch(pos_img)
+            cos = self.numpy_to_torch(np.cos(2*ang_img))
+            sin = self.numpy_to_torch(np.sin(2*ang_img))
+            width = self.numpy_to_torch(width_img)
 
         if self.include_depth and self.include_rgb:
             x = self.numpy_to_torch(
@@ -87,12 +93,11 @@ class GraspDatasetBase(torch.utils.data.Dataset):
         elif self.include_rgb:
             x = self.numpy_to_torch(rgb_img)
 
-        pos = self.numpy_to_torch(pos_img)
-        cos = self.numpy_to_torch(np.cos(2*ang_img))
-        sin = self.numpy_to_torch(np.sin(2*ang_img))
-        width = self.numpy_to_torch(width_img)
-
-        return x, (pos, cos, sin, width), idx, rot, zoom_factor
+        # print(depth_img.shape,self.include_depth,self.include_rgb,'shape of x:',x.shape)
+        if not self.input_only:
+            return x, (pos, cos, sin, width), idx, rot, zoom_factor
+        else:  # no labels
+            return x, idx, rot, zoom_factor 
 
     def __len__(self):
         return len(self.grasp_files)
