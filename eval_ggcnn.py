@@ -17,7 +17,7 @@ def parse_args():
     parser.add_argument('--network', type=str, help='Path to saved network to evaluate')
 
     # Dataset & Data & Training
-    parser.add_argument('--dataset', type=str, help='Dataset Name ("cornell" or "jaquard")')
+    parser.add_argument('--dataset', type=str, help='Dataset Name ("cornell" or "jaquard" or "my")')
     parser.add_argument('--dataset-path', type=str, help='Path to dataset')
     parser.add_argument('--use-depth', type=int, default=1, help='Use Depth image for evaluation (1/0)')
     parser.add_argument('--use-rgb', type=int, default=0, help='Use RGB image for evaluation (0/1)')
@@ -53,9 +53,13 @@ if __name__ == '__main__':
     logging.info('Loading {} Dataset...'.format(args.dataset.title()))
     Dataset = get_dataset(args.dataset)  
     # utils/data/jacquard_data.py
+    if args.dataset=="my":
+      input_only = True
+    else:
+      input_only = False
     test_dataset = Dataset(args.dataset_path, start=args.split, end=1.0, ds_rotate=args.ds_rotate,
                            random_rotate=args.augment, random_zoom=args.augment,
-                           include_depth=args.use_depth, include_rgb=args.use_rgb)
+                           include_depth=args.use_depth, include_rgb=args.use_rgb, input_only=input_only)
     test_data = torch.utils.data.DataLoader(
         test_dataset,
         batch_size=1,
@@ -72,18 +76,32 @@ if __name__ == '__main__':
             pass
 
     with torch.no_grad():
+      if args.dataset=="my":
+        for idx, (x, didx, rot, zoom) in enumerate(test_data):
+            logging.info('Processing {}/{}'.format(idx+1, len(test_data)))
+            xc = x.to(device) #data
+            print('shape of xc:',xc.shape)
+            # Approach 2: alternative to "lossd = net.compute_loss(xc, yc)"
+            _pos_output, _cos_output, _sin_output, _width_output = net.forward(xc) # only x(data) is used
+            tq_img, tang_img, twidth_img = post_process_output(_pos_output,_cos_output,_sin_output,_width_output)
+            if args.vis:
+                evaluation.plot_output(test_data.dataset.get_rgb(didx, rot, zoom, normalise=False),
+                                       test_data.dataset.get_depth(didx, rot, zoom), tq_img,
+                                       tang_img, no_grasps=args.n_grasps, grasp_width_img=twidth_img)
+      else:
         for idx, (x, y, didx, rot, zoom) in enumerate(test_data):
             # data(x), label(y)=(pos, cos, sin, width), idx, rot, zoom_factor
             logging.info('Processing {}/{}'.format(idx+1, len(test_data)))
             xc = x.to(device) #data
             yc = [yi.to(device) for yi in y] #label
+            print('shape of xc:',xc.shape)
             
             # Approach 1 --models/ggcnn.py 
             lossd = net.compute_loss(xc, yc)  # x(data), y(label) 
             q_img, ang_img, width_img = post_process_output(lossd['pred']['pos'], lossd['pred']['cos'],
                                                         lossd['pred']['sin'], lossd['pred']['width'])
             
-            # Approach 2: alternative of "lossd = net.compute_loss(xc, yc)"
+            # Approach 2: alternative to "lossd = net.compute_loss(xc, yc)"
             _pos_output, _cos_output, _sin_output, _width_output = net.forward(xc) # only x(data) is used
             tq_img, tang_img, twidth_img = post_process_output(_pos_output,_cos_output,_sin_output,_width_output)
 
