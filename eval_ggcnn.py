@@ -53,7 +53,7 @@ if __name__ == '__main__':
     logging.info('Loading {} Dataset...'.format(args.dataset.title()))
     Dataset = get_dataset(args.dataset)  
     # utils/data/jacquard_data.py
-    if args.dataset=="my":
+    if args.dataset=="my" or args.dataset=="my2":
       input_only = True
     else:
       input_only = False
@@ -76,7 +76,7 @@ if __name__ == '__main__':
             pass
 
     with torch.no_grad():
-      if args.dataset=="my":
+      if args.dataset=="my" or args.dataset=="my2":
         for idx, (x, didx, rot, zoom) in enumerate(test_data):
             logging.info('Processing {}/{}'.format(idx+1, len(test_data)))
             xc = x.to(device) #data
