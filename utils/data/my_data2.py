@@ -9,6 +9,7 @@ The dataset should in the following format：
 import os
 import glob
 import numpy as np
+import cv2
 
 from .grasp_data import GraspDatasetBase
 from utils.dataset_processing import grasp, image
@@ -56,6 +57,7 @@ class MyDataset2(GraspDatasetBase):
         # Crop.
         depth_crop = depth[(imh - crop_size) // 2 - crop_y_offset:(imh - crop_size) // 2 + crop_size - crop_y_offset,
                                (imw - crop_size) // 2:(imw - crop_size) // 2 + crop_size]
+        print('crop:',(imh - crop_size) // 2 - crop_y_offset,(imh - crop_size) // 2 + crop_size - crop_y_offset,(imw - crop_size) // 2,(imw - crop_size) // 2 + crop_size)
         # Inpaint
         # OpenCV inpainting does weird things at the border.
         depth_crop = cv2.copyMakeBorder(depth_crop, 1, 1, 1, 1, cv2.BORDER_DEFAULT)
@@ -94,15 +96,18 @@ class MyDataset2(GraspDatasetBase):
 #         depth_img.zoom(zoom)
 #         depth_img.resize((self.output_size, self.output_size))
         rgd_img = image.Image.from_file(self.depth_files[idx])
+        # print(self.depth_files[idx])
         rgd_img.rotate(rot)
         rgd_img.zoom(zoom)
         rgd_img.normalise()
-        rgd_img.img = rgb_img.img.transpose((2, 0, 1)) #DGR-RGD
-        depth = rgb_img.img[:, :, 2] # take depth channel
-        depth_processed, depth_nan_mask = process_depth_image(depth)
+        rgd_img.img = rgd_img.img.transpose((2, 0, 1)) #DGR-RGD
+        # print(rgd_img.img.shape)
+        depth = rgd_img.img[2,:,:] # take depth channel
+        # print(depth.shape)
+        depth_processed, depth_nan_mask = self.process_depth_image(depth)
         depth_processed = np.clip((depth_processed - depth_processed.mean()), -1, 1)
-        depth_reshaped = depth_processed.reshape((1, 300, 300)) # not sure?
-        return depth_reshaped
+        # depth_reshaped = depth_processed.reshape((1, 300, 300)) # not sure?
+        return depth_processed
 
     def get_rgb(self, idx, rot=0, zoom=1.0, normalise=True):
         rgb_img = image.Image.from_file(self.rgb_files[idx])
