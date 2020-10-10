@@ -65,7 +65,6 @@ class MyDataset(GraspDatasetBase):
         depth_img.normalise()
         depth_img.zoom(zoom)
         depth_img.resize((self.output_size, self.output_size))
-        print(depth_img.img.shape)  #??
         return depth_img.img
 
     def get_rgb(self, idx, rot=0, zoom=1.0, normalise=True):
