@@ -1,3 +1,13 @@
+'''
+The dataset should in the following format：
+--file_path
+  --*_RGB.png
+  --*_perfect_depth.tiff
+  --**_RGB.png
+  --**_perfect_depth.tiff
+  ...
+  
+'''
 import os
 import glob
 
