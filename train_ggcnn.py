@@ -28,6 +28,7 @@ def parse_args():
 
     # Network
     parser.add_argument('--network', type=str, default='ggcnn', help='Network Name in .models')
+    parser.add_argument('--network_path', type=str, default='', help='Path to saved network to evaluate')
 
     # Dataset & Data & Training
     parser.add_argument('--dataset', type=str, help='Dataset Name ("cornell" or "jaquard")')
@@ -220,11 +221,18 @@ def run():
     logging.info('Done')
 
     # Load the network
-    logging.info('Loading Network...')
-    input_channels = 1*args.use_depth + 3*args.use_rgb
-    ggcnn = get_network(args.network)
+    
+    if args.network_path!='':
+      # load pretrained weights or network
+      logging.info('Loading Pretrained Network...')
+      net = torch.load(args.network_path)
+      input_channels = 1*args.use_depth + 3*args.use_rgb
+    else:
+      logging.info('Loading Raw Network...')
+      input_channels = 1*args.use_depth + 3*args.use_rgb
+      ggcnn = get_network(args.network)
+      net = ggcnn(input_channels=input_channels)
 
-    net = ggcnn(input_channels=input_channels)
     device = torch.device("cuda:0")
     net = net.to(device)
     optimizer = optim.Adam(net.parameters())
