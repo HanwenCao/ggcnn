@@ -140,6 +140,7 @@ def train(epoch, net, device, train_data, optimizer, batches_per_epoch, vis=Fals
     # Use batches per epoch to make training on different sized datasets (cornell/jacquard) more equivalent.
     while batch_idx < batches_per_epoch:
         for x, y, _, _, _ in train_data:
+            # x:tensor(4,1,300,300); y:list[(4,1,300,300),(4,1,300,300),(4,1,300,300),(4,1,300,300)]
             batch_idx += 1
             if batch_idx >= batches_per_epoch:
                 break
