@@ -131,7 +131,9 @@ def train(epoch, net, device, train_data, optimizer, batches_per_epoch, vis=Fals
         'losses': {
         }
     }
-
+    
+    ld = len(train_data)
+    
     net.train()
 
     batch_idx = 0
