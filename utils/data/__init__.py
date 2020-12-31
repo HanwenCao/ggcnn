@@ -11,5 +11,8 @@ def get_dataset(dataset_name):
     elif dataset_name == 'my2':
         from .my_data2 import MyDataset2
         return MyDataset2
+    elif dataset_name == 'my_crop':
+        from .my_data_crop import MyDataset3
+        return MyDataset3
     else:
         raise NotImplementedError('Dataset Type {} is Not implemented'.format(dataset_name))
