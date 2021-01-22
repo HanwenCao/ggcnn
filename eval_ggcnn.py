@@ -80,7 +80,7 @@ if __name__ == '__main__':
         for idx, (x, didx, rot, zoom) in enumerate(test_data):
             logging.info('Processing {}/{}'.format(idx+1, len(test_data)))
             xc = x.to(device) #data
-            print('shape of xc:',xc.shape)
+            # print('shape of xc:',xc.shape)
             # Approach 2: alternative to "lossd = net.compute_loss(xc, yc)"
             _pos_output, _cos_output, _sin_output, _width_output = net.forward(xc) # only x(data) is used
             tq_img, tang_img, twidth_img = post_process_output(_pos_output,_cos_output,_sin_output,_width_output)

@@ -4,6 +4,7 @@ import torch
 import torch.utils.data
 
 import random
+# import matplotlib.pyplot as plt
 
 
 class GraspDatasetBase(torch.utils.data.Dataset):
@@ -64,7 +65,11 @@ class GraspDatasetBase(torch.utils.data.Dataset):
         # Load the depth image
         if self.include_depth:
             depth_img = self.get_depth(idx, rot, zoom_factor)
-            # print(depth_img.shape)
+            # fig = plt.figure(figsize=(5, 5))
+            # fig.suptitle(idx, fontsize=10)
+            # ax = fig.add_subplot(1, 1, 1)
+            # ax.imshow(depth_img, cmap='gray')
+            # plt.show()
 
         # Load the RGB image
         if self.include_rgb:
@@ -74,6 +79,21 @@ class GraspDatasetBase(torch.utils.data.Dataset):
         if not self.input_only:
             bbs = self.get_gtbb(idx, rot, zoom_factor)
             pos_img, ang_img, width_img = bbs.draw((self.output_size, self.output_size))
+
+            # fig = plt.figure(figsize=(15, 6))
+            # fig.suptitle(idx, fontsize=10)
+            # ax = fig.add_subplot(1, 5, 1)
+            # ax.imshow(pos_img, cmap='gray')
+            # ax = fig.add_subplot(1, 5, 2)
+            # ax.imshow(ang_img, cmap='gray')
+            # ax = fig.add_subplot(1, 5, 3)
+            # ax.imshow(width_img, cmap='gray')
+            # ax = fig.add_subplot(1, 5, 4)
+            # ax.imshow(depth_img, cmap='gray')
+            # ax = fig.add_subplot(1, 5, 5)
+            # ax.imshow(rgb_img.transpose((1,2,0))*255)
+            
+
             width_img = np.clip(width_img, 0.0, 150.0)/150.0
             pos = self.numpy_to_torch(pos_img)
             cos = self.numpy_to_torch(np.cos(2*ang_img))
@@ -93,7 +113,9 @@ class GraspDatasetBase(torch.utils.data.Dataset):
         elif self.include_rgb:
             x = self.numpy_to_torch(rgb_img)
 
-        # print(depth_img.shape,self.include_depth,self.include_rgb,'shape of x:',x.shape)
+        # print(depth_img.shape,self.include_depth,self.include_rgb,'shape of x:',x.shape,'shape of pos:',pos.shape,'idx：',idx,'zoom：',zoom_factor,'rot：',rot)
+        # plt.show()
+
         if not self.input_only:
             return x, (pos, cos, sin, width), idx, rot, zoom_factor
         else:  # no labels

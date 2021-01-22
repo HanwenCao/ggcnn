@@ -1,4 +1,4 @@
-**Note:** This is a cleaned-up, PyTorch port of the GG-CNN code.  For the original Keras implementation, see the `RSS2018` branch. dev branch created.
+**Note:** This is a cleaned-up, PyTorch port of the GG-CNN code.  For the original Keras implementation, see the `RSS2018` branch.  
 Main changes are major code clean-ups and documentation, an improved GG-CNN2 model, ability to use the Jacquard dataset and simpler evaluation.    
 
 
